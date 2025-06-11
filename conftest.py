@@ -23,7 +23,7 @@ def base_url(request):
     return "http://" + request.config.getoption("--base_url")
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def browser(request):
     driver = None
     browser_name = request.config.getoption("--browser")
