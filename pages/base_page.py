@@ -4,16 +4,18 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import TimeoutException
 import time
 import allure
+from abc import ABC, abstractmethod
 
 
-class BasePage:
+class BasePage(ABC):  # Наследуемся от ABC — делаем класс абстрактным
     def __init__(self, driver):
         self.driver = driver
         self.logger = driver.logger
         self.class_name = type(self).__name__
 
-    @allure.step("Открытие страницы: {url}")
+    @abstractmethod
     def open_page(self, url):
+        """Метод для открытия страницы"""
         self.logger.info("%s: Opening url: %s" % (self.class_name, url))
         self.driver.get(url)
 
