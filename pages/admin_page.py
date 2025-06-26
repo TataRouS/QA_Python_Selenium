@@ -1,5 +1,7 @@
 from pages.admin_login_page import AdminLoginPage
 from selenium.webdriver.common.by import By
+import allure
+
 
 
 class AdminPage(AdminLoginPage):
@@ -28,14 +30,7 @@ class AdminPage(AdminLoginPage):
     DELETE_BUTTON = (By.XPATH, '//*[@id="content"]/div[1]/div/div/button[3]')
     FILTER_EMPTY = (By.XPATH, '//*[@id="form-product"]/div[1]/table/tbody/tr/td')
 
-    # def open_login_page(self, url):
-    #     self.driver.get(url)
-    #
-    # def login(self, username, password):
-    #     self.input_text(self.USERNAME_FIELD, username)
-    #     self.input_text(self.PASSWORD_FIELD, password)
-    #     self.click_on_element(self.LOGIN_BUTTON)
-
+    @allure.step("Добавление нового товара: {product_name}, {meta_teg}, {model}, {seo}")
     def add_new_product(self, product_name, meta_teg, model, seo):
         self.click_on_element(self.CATALOG_IN_NAVIGATION)
         self.click_on_element(self.PRODUCTS)
@@ -49,17 +44,20 @@ class AdminPage(AdminLoginPage):
         self.click_on_element(self.SAVE_NEW_PRODUCT_BUTTON)
         self.click_on_element(self.BACK_BUTTON)
 
+    @allure.step("Получение списка товаров после фильтрации по имени: {product_name}")
     def get_new_product_text_from_filter_list(self, product_name):
         self.input_text(self.FILTER_PRODUCT_NAME_FIELD, product_name)
         self.click_on_element(self.FILTER_BUTTON_ON_FORM)
         new_product = self.find_elements(self.PRODUCT_NAME_IN_FILTER_LIST)
         return new_product
 
+    @allure.step("Применение фильтра без результатов")
     def get_filter_list(self):
         self.click_on_element(self.FILTER_BUTTON_ON_FORM)
         product = self.find_element(self.FILTER_EMPTY)
         return product
 
+    @allure.step("Удаление выбранного товара")
     def delete_product(self):
         self.click_on_element(self.CHECK_BOX_IN_FILTER_LIST)
         self.click_on_element(self.DELETE_BUTTON)
