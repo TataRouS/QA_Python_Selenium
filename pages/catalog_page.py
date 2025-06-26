@@ -1,5 +1,6 @@
 from pages.base_page import BasePage
 from selenium.webdriver.common.by import By
+import allure
 
 
 class CatalogPage(BasePage):
@@ -20,43 +21,80 @@ class CatalogPage(BasePage):
     EURO_CURRENCY_ITEM = (By.XPATH, '//*[@id="form-currency"]/div/ul/li[1]/a')
     PRODUCT_PRICE = (By.XPATH, '//*[@id="product-list"]/div/div/div[2]/div/div/span[1]')
 
+    @allure.step("Открытие страницы по URL: '{url}' ")
     def open_page(self, url):
         self.driver.get(url)
 
+    @allure.step("Проверка наличия меню навигации")
     def check_menu_exists(self):
-        return self.find_element(self.MENU) is not None
+        exists = self.find_element(self.MENU) is not None
+        with allure.step(f"Результат проверки: {exists}"):
+            pass
+        return exists
 
+    @allure.step("Проверка наличия кнопки добавления первого товара в корзину")
     def check_first_product_cart_exists(self):
-        return self.find_element(self.SHOP_CART_FIRST_PRODUCT) is not None
+        exists = self.find_element(self.SHOP_CART_FIRST_PRODUCT) is not None
+        with allure.step(f"Результат проверки: {exists}"):
+            pass
+        return exists
 
+    @allure.step("Наведение курсора на пункт меню 'Каталог'")
     def hover_navbar_menu_item(self):
         self.move_to_element(self.NAVBAR_MENU_ITEM)
 
+    @allure.step("Получение текста подменю")
     def get_submenu_text(self):
         element = self.find_element(self.SUBMENU_ITEM)
-        return element.text
+        text = element.text
+        with allure.step(f"Полученный текст: '{text}'"):
+            pass
+        return text
 
+    @allure.step("Получение названия категории")
     def get_category_name_text(self):
         element = self.find_element(self.CATEGORY_NAME)
-        return element.text
+        text = element.text
+        with allure.step(f"Полученное название категории: '{text}'"):
+            pass
+        return text
 
+    @allure.step("Нажатие на меню 'My Account'")
     def click_my_account_menu(self):
         self.click_on_element(self.MY_ACCOUNT_MENU)
 
+    @allure.step("Получение текста пункта меню 'Login'")
     def get_login_menu_text(self):
-        return self.find_element(self.LOGIN_MENU_ITEM).text
+        text = self.find_element(self.LOGIN_MENU_ITEM).text
+        with allure.step(f"Полученный текст: '{text}'"):
+            pass
+        return text
 
+    @allure.step("Нажатие на меню выбора валюты")
     def click_currency_menu(self):
         self.click_on_element(self.CURRENCY_MENU)
 
+    @allure.step("Получение текста опции 'Euro'")
     def get_euro_currency_text(self):
-        return self.find_element(self.EURO_CURRENCY_ITEM).text
+        text = self.find_element(self.EURO_CURRENCY_ITEM).text
+        with allure.step(f"Полученный текст: '{text}'"):
+            pass
+        return text
 
+    @allure.step("Открытие мобильного меню")
     def open_mobile_menu(self):
         self.click_on_element(self.MOBILE_MENU_BUTTON)
 
+    @allure.step("Проверка наличия ссылки категории в мобильном меню")
     def check_mobile_category_exists(self):
-        return self.find_element(self.MOBILE_CATEGORY_LINK) is not None
+        exists = self.find_element(self.MOBILE_CATEGORY_LINK) is not None
+        with allure.step(f"Результат проверки: {exists}"):
+            pass
+        return exists
 
+    @allure.step("Получение цены товара")
     def get_product_price(self):
-        return self.get_text(self.PRODUCT_PRICE)
+        price = self.get_text(self.PRODUCT_PRICE)
+        with allure.step(f"Полученная цена: {price}"):
+            pass
+        return price
