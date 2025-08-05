@@ -70,11 +70,17 @@ def browser(request):
         options.binary_location = "Users/tata_rous/Downloads/yandexdriver"
         if headless:
             options.add_argument("headless-new")
-
         driver = webdriver.Chrome(
             options=options,
             service=ChromiumService(executable_path=f"{drivers_storage}/yandexdriver"),
         )
+    elif browser_name in ["remote"]:
+        options = ChromeOptions()
+        if headless:
+            options.add_argument("headless=new")
+        driver = webdriver.Remote(
+            command_executor="http://localhost:8888/wd/hub",
+            options=options)
 
     allure.attach(
         name=driver.session_id,
@@ -142,3 +148,4 @@ def register_account_page_url(request):
         + request.config.getoption("--base_url")
         + "/en-gb?route=account/register"
     )
+
