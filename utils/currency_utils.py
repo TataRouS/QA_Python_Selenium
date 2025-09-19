@@ -1,7 +1,8 @@
 import time
 from selenium.webdriver.common.by import By
+import allure
 
-
+@allure.step("Смена валюты на '€ Euro'")
 def change_currency(browser, base_url):
     browser.get(base_url)
     # Клик по кнопке выбора валюты
