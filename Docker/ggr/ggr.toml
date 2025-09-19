@@ -1,0 +1,5 @@
+[listen]
+port = 4444
+
+[stat]
+enable = true  # Ensures /status is enabled

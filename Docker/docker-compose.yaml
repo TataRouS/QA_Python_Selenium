@@ -1,0 +1,55 @@
+services:
+
+  selenoid:
+    container_name: selenoid
+    image: "aerokube/selenoid:1.11.3"
+    networks:
+      - selenoid
+    ports:
+      - "4445:4444"
+    volumes:
+      - ./browsers.json:/etc/selenoid/browsers.json:ro
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    command: ["-container-network=selenoid", "limit=12", "-conf", "/etc/selenoid/browsers.json", "-video-output-dir", "/opt/selenoid/video", "-log-output-dir", "/opt/selenoid/logs", "-container-network", "selenoid"]
+
+  selenoid-ui:
+    container_name: selenoid-ui
+    depends_on:
+      - selenoid
+    image: "aerokube/selenoid-ui:1.10.11"
+    ports:
+      - "8083:8080"
+    networks:
+      - selenoid
+    command: [ "--selenoid-uri", "http://selenoid:4444", "-listen", ":8090" ]
+
+  ggr:
+    image: "aerokube/ggr:latest-release"
+    ports:
+      - "4444:4444"
+    volumes:
+      - "./ggr:/etc/grid-router:ro"
+    environment:
+      - GGR_AUTH=true
+      - GGR_USERS=test:test
+    command: ["-verbose"]
+    networks:
+      - selenoid
+
+  # --- GGR UI (Monitoring) ---
+  ggr-ui:
+    image: aerokube/ggr-ui:latest-release
+    ports:
+      - "8889:8888"  # GGR dashboard
+    environment:
+      - GGR_URL=http://ggr:4444
+    volumes:
+      - "./ggr:/etc/grid-router:ro"
+    depends_on:
+      - ggr
+    networks:
+      - selenoid
+
+networks:
+  selenoid:
+    name: selenoid
