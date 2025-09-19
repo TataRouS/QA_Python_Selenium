@@ -22,6 +22,7 @@ def pytest_addoption(parser):
         "--base_url", help="Base application url", default="192.168.0.10:8081"
     )
     parser.addoption("--log_level", action="store", default="INFO")
+    parser.addoption("--selenoid_url", action="store", default="http://localhost:4444/wd/hub")
 
 
 @pytest.fixture(scope="session")
@@ -46,6 +47,7 @@ def browser(request):
     drivers_storage = request.config.getoption("--drivers")
     headless = request.config.getoption("--headless")
     log_level = request.config.getoption("--log_level")
+    selenoid_url = request.config.getoption("--selenoid_url")
 
     logger = logging.getLogger(request.node.name)
     file_handler = logging.FileHandler(f"logs/{request.node.name}.log")
@@ -78,8 +80,20 @@ def browser(request):
         options = ChromeOptions()
         if headless:
             options.add_argument("headless=new")
+
+        # Add Selenoid-specific capabilities
+        capabilities = {
+            "browserName": "chrome",
+            "browserVersion": "latest",
+            "selenoid:options": {
+                "enableVNC": True,
+                "enableVideo": False
+            }
+        }
+        options.set_capability("selenoid:options", capabilities["selenoid:options"])
+
         driver = webdriver.Remote(
-            command_executor="http://localhost:8888/wd/hub",
+            command_executor=selenoid_url,
             options=options)
 
     allure.attach(
