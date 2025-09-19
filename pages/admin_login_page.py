@@ -1,5 +1,6 @@
 from pages.base_page import BasePage
 from selenium.webdriver.common.by import By
+
 import allure
 
 
@@ -9,6 +10,11 @@ class AdminLoginPage(BasePage):
     PASSWORD_FIELD = (By.NAME, "password")
     LOGIN_BUTTON = (By.CSS_SELECTOR, "button[type='submit']")
     HEADER_H1 = (By.XPATH, '//*[@id="content"]/div[1]/div/h1')
+
+    def open_page(self, url):
+        """Метод для открытия страницы"""
+        self.logger.info("%s: Opening url: %s" % (self.class_name, url))
+        self.driver.get(url)
 
     @allure.step("Открытие страницы логина: {url} ")
     def open_login_page(self, url):
