@@ -3,14 +3,14 @@ services:
   selenoid:
     container_name: selenoid
     image: "aerokube/selenoid:1.11.3"
-    networks:
-      - selenoid
     ports:
       - "4445:4444"
     volumes:
       - ./browsers.json:/etc/selenoid/browsers.json:ro
       - "/var/run/docker.sock:/var/run/docker.sock"
     command: ["-container-network=selenoid", "limit=12", "-conf", "/etc/selenoid/browsers.json", "-video-output-dir", "/opt/selenoid/video", "-log-output-dir", "/opt/selenoid/logs", "-container-network", "selenoid"]
+    networks:
+      - selenoid
 
   selenoid-ui:
     container_name: selenoid-ui
@@ -19,9 +19,9 @@ services:
     image: "aerokube/selenoid-ui:1.10.11"
     ports:
       - "8083:8080"
+    command: [ "--selenoid-uri", "http://selenoid:4444", "-listen", ":8090" ]
     networks:
       - selenoid
-    command: [ "--selenoid-uri", "http://selenoid:4444", "-listen", ":8090" ]
 
   ggr:
     image: "aerokube/ggr:latest-release"
@@ -50,6 +50,67 @@ services:
     networks:
       - selenoid
 
+  phpadmin:
+    image: 'phpmyadmin/phpmyadmin:latest'
+    environment:
+      - PMA_HOST=mariadb
+      - PMA_PORT=3306
+      - PMA_USER=bn_opencart
+    ports:
+      - '${PHPADMIN_PORT}:80'
+    networks:
+      - selenoid
+
+  mariadb:
+    image: docker.io/bitnami/mariadb:11.2
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - MARIADB_USER=bn_opencart
+      - MARIADB_DATABASE=bitnami_opencart
+    ports:
+      - '3306:3306'
+    networks:
+      - selenoid
+
+  opencart:
+    image: bitnami/opencart:4.0.2-3-debian-12-r33
+    ports:
+      - '${OPENCART_PORT}:8080'
+      - '443:8443'
+    environment:
+      - OPENCART_HOST=${LOCAL_IP}:${OPENCART_PORT}
+      - OPENCART_DATABASE_HOST=mariadb
+      - OPENCART_DATABASE_PORT_NUMBER=3306
+      - OPENCART_DATABASE_USER=bn_opencart
+      - OPENCART_DATABASE_NAME=bitnami_opencart
+      - ALLOW_EMPTY_PASSWORD=yes
+    depends_on:
+      - mariadb
+      - selenoid
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - selenoid
+
+  tests:
+    container_name: tests
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: test
+    environment:
+      - SELENOID_URL=http://selenoid:4444/wd/hub
+      - BASE_URL=opencart:8080
+    depends_on:
+      opencart:
+        condition: service_healthy
+    networks:
+      - selenoid
+
 networks:
   selenoid:
     name: selenoid
+
