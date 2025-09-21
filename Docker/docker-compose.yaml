@@ -18,7 +18,7 @@ services:
       - selenoid
     image: "aerokube/selenoid-ui:1.10.11"
     ports:
-      - "8083:8080"
+      - "8089:8080"
     command: [ "--selenoid-uri", "http://selenoid:4444", "-listen", ":8090" ]
     networks:
       - selenoid
@@ -73,7 +73,7 @@ services:
       - selenoid
 
   opencart:
-    image: bitnami/opencart:4.0.2-3-debian-12-r33
+    image: agridyaev/opencart:4.0.2-3-debian-12-r33
     ports:
       - '${OPENCART_PORT}:8080'
       - '443:8443'
@@ -97,9 +97,7 @@ services:
 
   tests:
     container_name: tests
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: ..
     image: test
     environment:
       - SELENOID_URL=http://selenoid:4444/wd/hub
